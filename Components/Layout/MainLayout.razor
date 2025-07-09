@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<main class="container">
+    <header class="site-header">
+        <div @onclick="NavigateHome" class="title" style="cursor: pointer;"><h1>Nanobin</h1></div><span class="site-subtitle">A minimalistic pastebin service</span>
+    </header>
+    <div class="main-content">
+        @Body
+    </div>
+</main>
+
+@code
+{
+   private void NavigateHome() => Navigation.NavigateTo("/"); 
+}
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 0 1rem;
+    }
+
+    .site-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        border-bottom: 1px solid #eee;
+        height: 30px;
+    }
+
+    .site-header h1 {
+        font-size: 1.25rem;
+        margin: 0;
+        color: #B0B0B0 !important;
+    }
+    
+    .main-content {
+        flex: 1;
+        margin-bottom: 1rem;
+        overflow: auto;
+    }
+
+    .site-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+        color: #444444 !important;
+    }
+</style>

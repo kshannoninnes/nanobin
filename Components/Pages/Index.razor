@@ -1,0 +1,36 @@
+﻿@page "/"
+@inject PasteService PasteService
+@inject NavigationManager Navigation
+
+<div class="create-paste">
+    <div class="editor-container">
+        <textarea @ref="PasteArea" 
+                    class="paste-input" 
+                    id="paste-input"
+                    placeholder="Enter your text here..."
+                    @bind="_newPaste.Content"></textarea>
+    </div>
+    <button @onclick="CreatePaste" class="create-button">Create Paste</button>
+</div>
+
+@code {
+    private ElementReference PasteArea { get; set; }
+    private Paste _newPaste = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Fix for autofocus not working in blazor apps
+        await PasteArea.FocusAsync();
+    }
+
+    private void CreatePaste()
+    {
+        if (string.IsNullOrWhiteSpace(_newPaste.Content))
+            return;
+
+        PasteService.CreatePaste(_newPaste);
+        Navigation.NavigateTo($"/{_newPaste.Id}");
+
+        _newPaste = new Paste();
+    }
+}

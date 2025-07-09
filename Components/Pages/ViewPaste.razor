@@ -1,0 +1,35 @@
+﻿@page "/{Id}"
+@inject PasteService PasteService
+@inject IJSRuntime JSRuntime
+
+@if (_paste == null)
+{
+    <div class="error">Paste not found</div>
+}
+else
+{
+    <pre class="preformatted-code">
+        <code class="highlighted-code">@_paste.Content</code>
+    </pre>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private Paste? _paste;
+
+    protected override void OnInitialized()
+    {
+        if (Id != null)
+        {
+            _paste = PasteService.GetPaste(Id);
+        }
+    }
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+    }
+
+}

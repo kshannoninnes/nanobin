@@ -1,0 +1,14 @@
+﻿.error {
+    color: #dc3545;
+    margin: 1rem 0;
+    font-family: monospace;
+}
+
+.preformatted-code {
+    margin: 1rem 0;
+}
+
+.highlighted-code {
+    padding: 0 !important;
+    background-color: transparent !important;
+}
