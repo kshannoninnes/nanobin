@@ -4,30 +4,49 @@
 
 <div class="create-paste">
     <div class="editor-container">
-        <textarea @ref="PasteArea" class="paste-input" placeholder="Enter your text here..." @bind="_newPaste.Content"></textarea>
+        <textarea @ref="PasteArea" class="paste-input" placeholder="Enter your text here..." @bind="_pasteContent"></textarea>
     </div>
-    <button @onclick="CreatePaste" class="create-button">Create Paste</button>
+    <button @onclick="SubmitAsync" class="create-button">Create Paste</button>
 </div>
 
 @code {
+    private string _pasteContent = string.Empty;
     private ElementReference PasteArea { get; set; }
-    private Paste _newPaste = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
         {
             // Fix for autofocus not working in blazor apps
             await PasteArea.FocusAsync();
         }
+        catch (JSException e)
+        {
+            Console.WriteLine("Error focusing textarea: " + e.Message);
+        }
     }
 
-    private void CreatePaste()
+    private async Task SubmitAsync()
     {
-        if (string.IsNullOrWhiteSpace(_newPaste.Content))
+        if (string.IsNullOrWhiteSpace(_pasteContent))
+        {
+            Console.WriteLine("Paste content cannot be empty.");
             return;
+        }
 
-        PasteService.CreatePaste(_newPaste);
-        Navigation.NavigateTo($"/{_newPaste.Id}");
+        try
+        {
+            var pasteId = await PasteService.CreatePasteAsync(_pasteContent);
+            Navigation.NavigateTo($"/{pasteId}");
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine("Error creating paste: " + e.Message);
+        }
     }
 }

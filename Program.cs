@@ -1,14 +1,40 @@
+using Microsoft.EntityFrameworkCore;
 using Nanobin.Components;
 using Nanobin.Components.Services;
+using Nanobin.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<NanobinDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseSqlite(connectionString, sqliteOptions =>
+    {
+        // Configure SQLite to use Write-Ahead Logging
+        sqliteOptions.CommandTimeout(60);
+    });
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<PasteService>();
+builder.Services.AddScoped<PasteService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<NanobinDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {
