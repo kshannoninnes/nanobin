@@ -1,6 +1,7 @@
 ﻿@page "/{Id}"
 @inject PasteService PasteService
 @inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 @if (_paste == null)
 {
@@ -8,9 +9,10 @@
 }
 else
 {
-    <pre class="preformatted-code">
-        <code class="highlighted-code">@_paste.Content</code>
-    </pre>
+    <div class="paste-container">
+        <pre><code class="highlighted-code">@_paste.Content</code></pre>
+        <div class="paste-metadata">Created: @_paste.GetFormattedTimestamp()</div>
+    </div>
 }
 
 @code {
@@ -18,6 +20,7 @@ else
     public string? Id { get; set; }
 
     private Paste? _paste;
+    private IJSObjectReference? _selectAllIntercept;
 
     protected override void OnInitialized()
     {
@@ -26,10 +29,24 @@ else
             _paste = PasteService.GetPaste(Id);
         }
     }
-    
-    protected override void OnAfterRender(bool firstRender)
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+        if (firstRender && _paste != null)
+        {
+            // await JSRuntime.InvokeVoidAsync("hljs.configure", new{cssSelector = "pre code"});
+            await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+
+            _selectAllIntercept = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/ViewPaste.razor.js");
+            await _selectAllIntercept.InvokeVoidAsync("handlePasteSelection");
+        }
     }
 
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_selectAllIntercept is not null)
+        {
+            await _selectAllIntercept.DisposeAsync();
+        }
+    }
 }

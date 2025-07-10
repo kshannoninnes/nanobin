@@ -28,4 +28,4 @@ resharper-host/
 Thumbs.db
 
 # Docker
-**/*compose.yaml
+compose.yaml

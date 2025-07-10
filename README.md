@@ -7,6 +7,7 @@ A hyper-minimalistic pastebin alternative built with .NET and Blazor.
 ### Current
 - **Syntax Highlighting:** Syntax highlighting for code snippets.
 - **Code Un-indentation:** Automatically removes common leading whitespace from your code snippets.
+- **Timestamps:** Each paste is timestamped with its creation date and time.
 
 ### Planned
 - Automatic end-to-end encryption

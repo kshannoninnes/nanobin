@@ -4,4 +4,10 @@ public class Paste
 {
     public string Id { get; } = Guid.NewGuid().ToString("N")[..8];
     public string Content { get; set; } = string.Empty;
+    private DateTime CreatedAt { get; } = DateTime.UtcNow;
+
+    public string GetFormattedTimestamp()
+    {
+        return CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC");
+    }
 }

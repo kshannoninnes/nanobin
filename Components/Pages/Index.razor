@@ -4,11 +4,7 @@
 
 <div class="create-paste">
     <div class="editor-container">
-        <textarea @ref="PasteArea" 
-                    class="paste-input" 
-                    id="paste-input"
-                    placeholder="Enter your text here..."
-                    @bind="_newPaste.Content"></textarea>
+        <textarea @ref="PasteArea" class="paste-input" placeholder="Enter your text here..." @bind="_newPaste.Content"></textarea>
     </div>
     <button @onclick="CreatePaste" class="create-button">Create Paste</button>
 </div>
@@ -19,8 +15,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Fix for autofocus not working in blazor apps
-        await PasteArea.FocusAsync();
+        if(firstRender)
+        {
+            // Fix for autofocus not working in blazor apps
+            await PasteArea.FocusAsync();
+        }
     }
 
     private void CreatePaste()
@@ -30,7 +29,5 @@
 
         PasteService.CreatePaste(_newPaste);
         Navigation.NavigateTo($"/{_newPaste.Id}");
-
-        _newPaste = new Paste();
     }
 }
