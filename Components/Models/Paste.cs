@@ -1,10 +1,13 @@
-﻿namespace Nanobin.Components.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class Paste
+namespace Nanobin.Components.Models;
+
+public class Paste(string content)
 {
-    public string Id { get; } = Guid.NewGuid().ToString("N")[..8];
-    public string Content { get; set; } = string.Empty;
-    private DateTime CreatedAt { get; } = DateTime.UtcNow;
+    public string Id { get; init; } = Guid.NewGuid().ToString("N")[..18];
+    // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
+    public string Content { get; init; } = content[..100000];
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     public string GetFormattedTimestamp()
     {
