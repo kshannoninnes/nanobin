@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<NanobinDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var connectionString = builder.Configuration.GetConnectionString("SqliteConnection");
     options.UseSqlite(connectionString, sqliteOptions =>
     {
         // Configure SQLite to use Write-Ahead Logging

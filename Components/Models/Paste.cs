@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Nanobin.Components.Models;
+﻿namespace Nanobin.Components.Models;
 
 public class Paste(string content)
 {
