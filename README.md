@@ -5,14 +5,14 @@ A hyper-minimalistic pastebin alternative built with .NET and Blazor.
 ## Features
 
 ### Current
-- **Syntax Highlighting:** Syntax highlighting for code snippets.
-- **Code Un-indentation:** Automatically removes common leading whitespace from your code snippets.
-- **Timestamps:** Each paste is timestamped with its creation date and time.
+- Syntax highlighting for code snippets.
+- Automatically removes common leading whitespace from your code snippets.
+- Uses SQLite for efficient, file-based storage.
 
 ### Planned
 - Automatic end-to-end encryption
-- Add expiration, both with a default value and a dropdown to change this value
-- Add a language dropdown to change the syntax highlighting if it picks the wrong language automatically
+- Automatic expiration, both with a default value and a dropdown to change this value
+- Language selection to change the syntax highlighting if it picks the wrong language automatically
 
 ## Getting Started
 
@@ -38,17 +38,34 @@ The application will be available at `http://localhost:5000`.
 
 ### Running with Docker
 
-1.  **Build the Docker image:**
-    ```bash
-    docker build -t nanobin .
-    ```
+1. **Build the Docker image:**
+   ```bash
+   docker build -t nanobin .
+   ```
 
-2.  **Run the Docker container:**
-    ```bash
-    docker run -p 8080:8080 nanobin
-    ```
+2. **Run the Docker container:**
+   ```bash
+   docker run -v /database/path/on/host:/data -p 8080:8080 nanobin
+   ```
 
-The application will be available at `http://localhost:8080`.
+   The application will be available at `http://localhost:8080`.
+
+## Troubleshooting
+
+### Permission Issues
+
+If you encounter permission problems when running the Docker container:
+
+1. **Volume Ownership**: Ensure the mounted volume has appropriate permissions:
+   ```bash
+   # On the host system, ensure the directory is accessible
+   sudo chown -R <user>:<group> /database/path/on/host
+   ```
+
+2. **User Configuration**: You may need to run the container with a specific user ID:
+   ```bash
+   docker run -u <uid>:<gid> -v /database/path/on/host:/data -p 8080:8080 nanobin
+   ```
 
 ## Contributing
 
