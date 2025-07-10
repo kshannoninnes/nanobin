@@ -34,7 +34,7 @@ A hyper-minimalistic pastebin alternative built with .NET and Blazor.
     dotnet run
     ```
 
-The application will be available at `http://localhost:5000`.
+The application will be available at `http://localhost:5148`.
 
 ### Running with Docker
 
