@@ -11,7 +11,7 @@
 else
 {
     <div class="paste-container">
-        <pre><code class="highlighted-code">@DecryptedContent</code></pre>
+        <pre><code id="decrypted-content"></code></pre>
         <div class="paste-metadata">Created: @_paste.GetFormattedTimestamp()</div>
     </div>
 }
@@ -22,17 +22,6 @@ else
 
     private Paste? _paste;
     private IJSObjectReference? _javascript;
-    private string _decryptedContent = string.Empty;
-
-    private string DecryptedContent
-    {
-        get => _decryptedContent;
-        set
-        {
-            _decryptedContent = value;
-            StateHasChanged();
-        }
-    }
 
 
     protected override async Task OnInitializedAsync()
@@ -66,9 +55,7 @@ else
             _javascript = await JsRuntime.InvokeAsync<IJSObjectReference>(
                 "import", "./Components/Pages/ViewPaste.razor.js");
 
-            DecryptedContent = await _javascript.InvokeAsync<string>("decryptContent", _paste.Content);
-            await _javascript.InvokeVoidAsync("highlightCode");
-            await _javascript.InvokeVoidAsync("handlePasteSelection");
+            await _javascript.InvokeVoidAsync("serveContent", _paste.Content);
         }
         catch (JSException e)
         {

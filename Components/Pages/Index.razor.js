@@ -10,9 +10,6 @@ export async function encryptContent(text) {
     // Export the key to raw format (to store in URL)
     const exportedKey = await window.crypto.subtle.exportKey('raw', key);
 
-    // Store the key in URL fragment
-    sessionStorage.setItem('key', arrayBufferToBase64(exportedKey));
-
     // Encrypt the text
     const iv = window.crypto.getRandomValues(new Uint8Array(12)); // 12 bytes IV for AES-GCM
     const encodedText = new TextEncoder().encode(text);
@@ -25,6 +22,9 @@ export async function encryptContent(text) {
         key,
         encodedText
     );
+
+    // Store the key in URL fragment
+    sessionStorage.setItem('key', arrayBufferToBase64(exportedKey));
 
     // Combine IV and encrypted data
     const combinedData = new Uint8Array(iv.length + encryptedData.byteLength);
