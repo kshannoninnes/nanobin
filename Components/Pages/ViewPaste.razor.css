@@ -15,7 +15,7 @@
     min-height: 0;
 }
 
-.highlighted-code {
+#decrypted-content {
     flex-grow: 1;
     width: 100%;
     height: 100%;

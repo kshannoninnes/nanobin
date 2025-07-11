@@ -1,10 +1,16 @@
-﻿/**
+﻿export async function serveContent(content){
+    handlePasteSelection();
+    document.getElementById('decrypted-content').textContent = await decryptContent(content);
+    hljs.highlightAll();
+}
+
+/**
  * Intercepts Ctrl-A keypresses to select all the paste text only
  */
-export function handlePasteSelection() {
+function handlePasteSelection() {
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-            const codeElement = document.querySelector('.highlighted-code');
+            const codeElement = document.getElementById('decrypted-content');
             if (codeElement) {
                 e.preventDefault();
 
@@ -20,20 +26,11 @@ export function handlePasteSelection() {
 }
 
 /**
- * Highlights code blocks on the page using highlight.js
- * @returns {void}
- */
-
-export function highlightCode() {
-    window.hljs.highlightAll();
-}
-
-/**
  * Decrypts a string using the key from the URL fragment
  * @param {string} combinedData - The combined IV and encrypted data as a single base64 string
  * @returns {Promise<string>} - The decrypted text
  */
-export async function decryptContent(combinedData) {
+async function decryptContent(combinedData) {
     // Get the key from the URL fragment
     const keyBase64 = window.location.hash.substring(1); // Remove the '#' character
     if (!keyBase64) {
@@ -67,8 +64,9 @@ export async function decryptContent(combinedData) {
         encryptedData
     );
 
-    // Decode the decrypted data to string
+    // Decode and render the decrypted data
     return new TextDecoder().decode(decryptedData);
+
 }
 
 /**
