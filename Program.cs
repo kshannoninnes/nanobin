@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Nanobin.Components;
 using Nanobin.Components.Services;
 using Nanobin.Data;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,11 @@ builder.Services.AddDbContext<NanobinDbContext>(options =>
     });
 });
 
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -24,8 +30,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<NanobinDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<NanobinDbContext>();
     try
     {
         dbContext.Database.Migrate();

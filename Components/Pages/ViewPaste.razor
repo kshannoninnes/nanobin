@@ -1,6 +1,7 @@
 ﻿@page "/{Id}"
 @inject PasteService PasteService
 @inject IJSRuntime JsRuntime
+@inject ILogger<ViewPaste> Logger
 @implements IAsyncDisposable
 
 @if (_paste == null)
@@ -17,15 +18,14 @@ else
 
 @code {
     [Parameter]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
 
     private Paste? _paste;
     private IJSObjectReference? _selectAllIntercept;
 
+
     protected override async Task OnInitializedAsync()
     {
-        if (Id == null) return;
-        
         try
         {
             _paste = await PasteService.GetPasteAsync(Id);
@@ -33,7 +33,7 @@ else
         catch (IOException e)
         {
             _paste = null;
-            await Console.Error.WriteLineAsync(e.Message);
+            Logger.LogError(e, "Error retrieving paste {Id}", Id);
         }
     }
 
@@ -46,7 +46,7 @@ else
 
         if (_paste is null)
         {
-            await Console.Error.WriteLineAsync("Paste was null, aborting render.");
+            Logger.LogWarning("Paste was null, aborting render for ID {Id}", Id);
             return;
         }
 
@@ -59,7 +59,7 @@ else
         }
         catch (JSException e)
         {
-            await Console.Error.WriteLineAsync("JavaScript interop error: " + e.Message);
+            Logger.LogError(e, "JavaScript interop error for paste {Id}", Id);
         }
     }
 
