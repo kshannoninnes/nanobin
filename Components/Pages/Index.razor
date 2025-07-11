@@ -2,6 +2,8 @@
 @inject PasteService PasteService
 @inject NavigationManager Navigation
 @inject ILogger<Index> Logger
+@inject IJSRuntime JsRuntime
+@implements IAsyncDisposable
 
 <div class="create-paste">
     <div class="editor-container">
@@ -12,6 +14,7 @@
 
 @code {
     private string _pasteContent = string.Empty;
+    private IJSObjectReference? _javascript;
     private ElementReference PasteArea { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -25,6 +28,9 @@
         {
             // Fix for autofocus not working in blazor apps
             await PasteArea.FocusAsync();
+            
+            _javascript = await JsRuntime.InvokeAsync<IJSObjectReference>(
+                "import", "./Components/Pages/Index.razor.js");
         }
         catch (JSException e)
         {
@@ -42,13 +48,28 @@
 
         try
         {
-            var pasteId = await PasteService.CreatePasteAsync(_pasteContent);
+            if (_javascript is null)
+            {
+                Logger.LogError("Javascript module not initialized");
+                return;
+            }
+            
+            var encryptedContent = await _javascript.InvokeAsync<string>("encryptContent", _pasteContent);
+            var pasteId = await PasteService.CreatePasteAsync(encryptedContent);
             Logger.LogInformation("Created new paste with ID {PasteId}", pasteId);
-            Navigation.NavigateTo($"/{pasteId}");
+            await _javascript.InvokeVoidAsync("navigateToNewPaste", pasteId);
         }
         catch (IOException e)
         {
             Logger.LogError(e, "Error creating paste");
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_javascript is not null)
+        {
+            await _javascript.DisposeAsync();
         }
     }
 }

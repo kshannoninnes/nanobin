@@ -11,7 +11,7 @@
 else
 {
     <div class="paste-container">
-        <pre><code class="highlighted-code">@_paste.Content</code></pre>
+        <pre><code class="highlighted-code">@DecryptedContent</code></pre>
         <div class="paste-metadata">Created: @_paste.GetFormattedTimestamp()</div>
     </div>
 }
@@ -21,7 +21,18 @@ else
     public required string Id { get; set; }
 
     private Paste? _paste;
-    private IJSObjectReference? _selectAllIntercept;
+    private IJSObjectReference? _javascript;
+    private string _decryptedContent = string.Empty;
+
+    private string DecryptedContent
+    {
+        get => _decryptedContent;
+        set
+        {
+            _decryptedContent = value;
+            StateHasChanged();
+        }
+    }
 
 
     protected override async Task OnInitializedAsync()
@@ -52,10 +63,12 @@ else
 
         try
         {
-            await JsRuntime.InvokeVoidAsync("hljs.highlightAll");
+            _javascript = await JsRuntime.InvokeAsync<IJSObjectReference>(
+                "import", "./Components/Pages/ViewPaste.razor.js");
 
-            _selectAllIntercept = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/ViewPaste.razor.js");
-            await _selectAllIntercept.InvokeVoidAsync("handlePasteSelection");
+            DecryptedContent = await _javascript.InvokeAsync<string>("decryptContent", _paste.Content);
+            await _javascript.InvokeVoidAsync("highlightCode");
+            await _javascript.InvokeVoidAsync("handlePasteSelection");
         }
         catch (JSException e)
         {
@@ -65,9 +78,9 @@ else
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (_selectAllIntercept is not null)
+        if (_javascript is not null)
         {
-            await _selectAllIntercept.DisposeAsync();
+            await _javascript.DisposeAsync();
         }
     }
 }
