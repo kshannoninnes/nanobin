@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Nanobin.Components;
 using Nanobin.Components.Services;
@@ -6,19 +7,24 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var appDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+var configPath = builder.Configuration["ConfigPath"] ?? Path.Combine(appDir, "nanobin");
+var dbPath = Path.Combine(configPath, "db", "nanobin.db");
+var keysPath = Path.Combine(configPath, "keys");
+var logPath = Path.Combine(configPath, "logs");
+
 builder.Services.AddDbContext<NanobinDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("SqliteConnection");
-    options.UseSqlite(connectionString, sqliteOptions =>
-    {
-        // Configure SQLite to use Write-Ahead Logging
-        sqliteOptions.CommandTimeout(60);
-    });
+    options.UseSqlite($"Data Source={dbPath}");
 });
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
+    configuration.WriteTo.File(path: logPath);
 });
 
 builder.Services.AddRazorComponents()
