@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject PasteService PasteService
 @inject NavigationManager Navigation
+@inject ILogger<Index> Logger
 
 <div class="create-paste">
     <div class="editor-container">
@@ -27,7 +28,7 @@
         }
         catch (JSException e)
         {
-            Console.WriteLine("Error focusing textarea: " + e.Message);
+            Logger.LogError(e, "Error focusing textarea");
         }
     }
 
@@ -35,18 +36,19 @@
     {
         if (string.IsNullOrWhiteSpace(_pasteContent))
         {
-            Console.WriteLine("Paste content cannot be empty.");
+            Logger.LogWarning("Attempt to submit empty paste content");
             return;
         }
 
         try
         {
             var pasteId = await PasteService.CreatePasteAsync(_pasteContent);
+            Logger.LogInformation("Created new paste with ID {PasteId}", pasteId);
             Navigation.NavigateTo($"/{pasteId}");
         }
         catch (IOException e)
         {
-            Console.WriteLine("Error creating paste: " + e.Message);
+            Logger.LogError(e, "Error creating paste");
         }
     }
 }
