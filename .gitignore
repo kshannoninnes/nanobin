@@ -30,7 +30,7 @@ Thumbs.db
 # Docker
 compose.yaml
 
-# Database
-*.db
-*.db-shm
-*.db-wal
+# Config
+Config/db
+Config/keys
+Config/logs

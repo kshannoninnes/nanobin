@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nanobin.Components.Models;
 
-namespace Nanobin.Data;
+namespace Nanobin.Config;
 
 public class NanobinDbContext(DbContextOptions<NanobinDbContext> options) : DbContext(options)
 {

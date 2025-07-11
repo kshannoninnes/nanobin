@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Nanobin.Components.Models;
-using Nanobin.Data;
+using Nanobin.Config;
 
 namespace Nanobin.Components.Services;
 

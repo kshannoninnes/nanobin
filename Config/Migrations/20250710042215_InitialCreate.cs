@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Nanobin.Data.Migrations
+namespace Nanobin.Config.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

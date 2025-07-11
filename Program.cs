@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Nanobin.Components;
 using Nanobin.Components.Services;
-using Nanobin.Data;
+using Nanobin.Config;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

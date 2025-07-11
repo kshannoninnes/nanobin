@@ -22,4 +22,9 @@
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Config\keys\" />
+      <Folder Include="Config\logs\" />
+    </ItemGroup>
+
 </Project>
