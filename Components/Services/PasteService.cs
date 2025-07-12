@@ -14,7 +14,7 @@ public class PasteService(NanobinDbContext dbContext, ILogger<PasteService> logg
         var newPaste = new Paste
         {
             Id = await GenerateIdAsync(),
-            Content = CleanContent(content),
+            Content = new string(content.Take(100000).ToArray()),
             CreatedAt = DateTime.UtcNow
         };
         
@@ -65,26 +65,5 @@ public class PasteService(NanobinDbContext dbContext, ILogger<PasteService> logg
         } while (await dbContext.Pastes.AnyAsync(p => p.Id == id));
 
         return id;
-    }
-
-    private static string CleanContent(string content)
-    {
-        var fixedIndentation = FixIndentation(content);
-        var lengthTruncated = fixedIndentation.Take(100000).ToArray();
-
-        return new string(lengthTruncated);
-    }
-    
-    private static string FixIndentation(string text)
-    {
-        var lines = text.Replace("\r\n", "\n").Split('\n');
-        var nonEmptyLines = lines.Where(line => line.Trim().Length > 0).ToArray();
-        var minIndent = nonEmptyLines.Length != 0
-            ? nonEmptyLines.Min(line => line.TakeWhile(char.IsWhiteSpace).Count())
-            : 0;
-
-        return string.Join("\n", lines.Select(line =>
-            line.Length >= minIndent ? line[minIndent..] : line
-        ));
     }
 }
