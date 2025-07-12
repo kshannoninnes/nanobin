@@ -24,17 +24,17 @@
             return;
         }
 
+        // Fix for autofocus not working in blazor apps
+        await PasteArea.FocusAsync();
+        
         try
         {
-            // Fix for autofocus not working in blazor apps
-            await PasteArea.FocusAsync();
-            
             _javascript = await JsRuntime.InvokeAsync<IJSObjectReference>(
                 "import", "./Components/Pages/Index.razor.js");
         }
         catch (JSException e)
         {
-            Logger.LogError(e, "Error focusing textarea");
+            Logger.LogWarning(e, "Error initializing JavaScript module");
         }
     }
 
@@ -50,18 +50,18 @@
         {
             if (_javascript is null)
             {
-                Logger.LogError("Javascript module not initialized");
                 return;
             }
             
             var encryptedContent = await _javascript.InvokeAsync<string>("encryptContent", _pasteContent);
             var pasteId = await PasteService.CreatePasteAsync(encryptedContent);
             Logger.LogInformation("Created new paste with ID {PasteId}", pasteId);
+            
             await _javascript.InvokeVoidAsync("navigateToNewPaste", pasteId);
         }
         catch (IOException e)
         {
-            Logger.LogError(e, "Error creating paste");
+            Logger.LogError(e, "Database error occurred while creating paste");
         }
     }
 

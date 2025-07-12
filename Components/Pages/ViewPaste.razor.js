@@ -1,11 +1,25 @@
-﻿export async function serveContent(content){
+﻿/**
+ * Decrypts and displays the paste content
+ * @param content
+ * @returns {Promise<void>}
+ */
+export async function displayContent(content) {
     handlePasteSelection();
     document.getElementById('decrypted-content').textContent = await decryptContent(content);
+}
+
+/**
+ * Performs syntax highlighting on the decrypted content
+ * @returns {void}
+ */
+export function applySyntaxHighlighting() {
     hljs.highlightAll();
 }
 
 /**
+ * TODO Remove this and implement a raw view instead
  * Intercepts Ctrl-A keypresses to select all the paste text only
+ * @returns {void}
  */
 function handlePasteSelection() {
     document.addEventListener('keydown', function(e) {
@@ -66,7 +80,6 @@ async function decryptContent(combinedData) {
 
     // Decode and render the decrypted data
     return new TextDecoder().decode(decryptedData);
-
 }
 
 /**
