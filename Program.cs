@@ -4,6 +4,8 @@ using Nanobin.Components;
 using Nanobin.Components.Services;
 using Nanobin.Config;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +23,43 @@ builder.Services.AddDbContext<NanobinDbContext>(options =>
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 
-builder.Host.UseSerilog((context, services, configuration) =>
+builder.Host.UseSerilog((context, _, configuration) =>
 {
-    configuration.ReadFrom.Configuration(context.Configuration);
-    configuration.WriteTo.File(path: logPath);
+    configuration
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Host", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+        .MinimumLevel.Override("System", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+        .Enrich.FromLogContext();
+
+    if (context.HostingEnvironment.IsDevelopment())
+    {
+        configuration.WriteTo.Console(
+            theme: ConsoleTheme.None,
+            outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+        );
+    }
+    else
+    {
+        configuration.WriteTo.Console(
+            theme: ConsoleTheme.None
+        );
+    }
+
+    // Configure file sink with the correct path
+    configuration.WriteTo.File(
+        path: Path.Combine(logPath, "nanobin_.log"),
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+        fileSizeLimitBytes: 10485760,
+        retainedFileCountLimit: 7,
+        shared: true,
+        flushToDiskInterval: TimeSpan.FromSeconds(1)
+    );
 });
+
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
