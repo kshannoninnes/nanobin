@@ -14,7 +14,7 @@ public class NanobinDbContext(DbContextOptions<NanobinDbContext> options) : DbCo
         modelBuilder.Entity<Paste>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasMaxLength(18).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasMaxLength(8).ValueGeneratedNever();
             entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
         });

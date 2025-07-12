@@ -2,17 +2,18 @@
 @inject PasteService PasteService
 @inject IJSRuntime JsRuntime
 @inject ILogger<ViewPaste> Logger
+@using Nanobin.Exceptions
 @implements IAsyncDisposable
 
-@if (_paste == null)
+@if (_errorMessage is not null)
 {
-    <div class="error">Paste not found</div>
+    <div class="error">@_errorMessage</div>
 }
 else
 {
     <div class="paste-container">
         <pre><code id="decrypted-content"></code></pre>
-        <div class="paste-metadata">Created: @_paste.GetFormattedTimestamp()</div>
+        <div class="paste-metadata">Created: @_paste!.GetFormattedTimestamp()</div>
     </div>
 }
 
@@ -21,19 +22,29 @@ else
     public required string Id { get; set; }
 
     private Paste? _paste;
+    private string? _errorMessage;
     private IJSObjectReference? _javascript;
-
-
+    
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _paste = await PasteService.GetPasteAsync(Id);
         }
+        catch (PasteNotFoundException e)
+        {
+            Logger.LogInformation("{Message}", e.Message);
+            _errorMessage = "Paste not found";
+        }
         catch (IOException e)
         {
-            _paste = null;
-            Logger.LogError(e, "Error retrieving paste {Id}", Id);
+            Logger.LogError(e, "Database error occurred while retrieving paste with ID: {PasteId}", Id);
+            _errorMessage = "Error retrieving paste";
+        }
+        catch(Exception e)
+        {
+            Logger.LogError(e, "Unexpected error occurred while retrieving paste with ID: {PasteId}", Id);
+            _errorMessage = "Unexpected server error retrieving paste";
         }
     }
 
@@ -43,10 +54,9 @@ else
         {
             return;
         }
-
-        if (_paste is null)
+        
+        if(_errorMessage is not null)
         {
-            Logger.LogWarning("Paste was null, aborting render for ID {Id}", Id);
             return;
         }
 
@@ -54,16 +64,44 @@ else
         {
             _javascript = await JsRuntime.InvokeAsync<IJSObjectReference>(
                 "import", "./Components/Pages/ViewPaste.razor.js");
-
-            await _javascript.InvokeVoidAsync("serveContent", _paste.Content);
+            
+            await DisplayContentAsync();
+            await HighlightSyntaxAsync();
         }
         catch (JSException e)
         {
             Logger.LogError(e, "JavaScript interop error for paste {Id}", Id);
+            _errorMessage = "JavaScript error loading paste content";
+        }
+    }
+    
+    private async Task DisplayContentAsync()
+    {
+        try
+        {
+            await _javascript!.InvokeVoidAsync("displayContent", _paste!.Content);
+        }
+        catch (JSException e)
+        {
+            Logger.LogError(e, "Error displaying paste content for {Id}", Id);
+            _errorMessage = "Error displaying paste content";
+        }
+    }
+    
+    private async Task HighlightSyntaxAsync()
+    {
+        try
+        {
+            await _javascript!.InvokeVoidAsync("applySyntaxHighlighting");
+        }
+        catch (JSException e)
+        {
+            Logger.LogWarning(e, "Syntax highlighting failed for paste {Id}", Id);
         }
     }
 
-    async ValueTask IAsyncDisposable.DisposeAsync()
+
+    public async ValueTask DisposeAsync()
     {
         if (_javascript is not null)
         {
