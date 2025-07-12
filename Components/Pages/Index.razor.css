@@ -2,11 +2,13 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
 }
 
 .editor-container {
     flex-grow: 1;
     margin: 0.5rem 0;
+    z-index: 0;
 }
 
 .paste-input {
@@ -35,4 +37,9 @@
     font-size: 1.1rem;
     align-self: flex-end;
     min-width: 150px;
+    z-index: 1;
+    position: absolute;
+    bottom: 1.22rem;
+    right: 1.2rem;
+
 }
