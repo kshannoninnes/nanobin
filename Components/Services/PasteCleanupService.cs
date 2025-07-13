@@ -3,8 +3,7 @@
 public class PasteCleanupService(IServiceProvider serviceProvider, ILogger<PasteCleanupService> logger)
     : BackgroundService
 {
-    private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
-    private readonly TimeSpan _maxAge = TimeSpan.FromDays(7);
+    private readonly TimeSpan _cleanupInterval = TimeSpan.FromHours(6);
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -38,18 +37,16 @@ public class PasteCleanupService(IServiceProvider serviceProvider, ILogger<Paste
 
         try
         {
-            logger.LogInformation("Beginning cleanup of expired pastes...");
+            logger.LogDebug("Beginning cleanup of expired pastes...");
             
-            var maxTimestamp = DateTime.UtcNow - _maxAge; 
-            var deletedCount = await pasteService.DeleteExpiredPastesAsync(maxTimestamp);
-            
+            var deletedCount = await pasteService.DeleteExpiredPastesAsync();
             if (deletedCount > 0)
             {
-                logger.LogInformation("Cleanup completed: {DeletedCount} expired pastes removed", deletedCount);
+                logger.LogDebug("Cleanup completed: {DeletedCount} expired pastes removed", deletedCount);
             }
             else
             {
-                logger.LogInformation("Cleanup completed: No expired pastes found");
+                logger.LogDebug("Cleanup completed: No expired pastes found");
             }
         }
         catch (IOException e)

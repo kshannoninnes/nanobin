@@ -13,7 +13,7 @@ export async function displayContent(content) {
  * @returns {void}
  */
 export function applySyntaxHighlighting() {
-    hljs.highlightAll();
+    window.hljs.highlightAll();
 }
 
 /**
