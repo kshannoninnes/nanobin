@@ -7,8 +7,8 @@ public class Paste
     public required string Content { get; init; }
     public required DateTime ExpiresAt { get; init; }
 
-    public string GetFormattedTimestamp()
+    public string GetFormattedExpiryDate()
     {
-        return ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss UTC");
+        return ExpiresAt.ToString("yyyy-MM-dd HH:mm UTC");
     }
 }
