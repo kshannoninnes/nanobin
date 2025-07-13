@@ -66,4 +66,29 @@ public class PasteService(NanobinDbContext dbContext, ILogger<PasteService> logg
 
         return id;
     }
+
+    public async Task<int> DeleteExpiredPastesAsync(DateTime maxTimestamp)
+    {
+        try
+        {
+            var expiredPastes = await dbContext.Pastes
+                .Where(p => p.CreatedAt < maxTimestamp)
+                .ToListAsync();
+
+            if (expiredPastes.Count == 0)
+            {
+                return 0;
+            }
+
+            dbContext.Pastes.RemoveRange(expiredPastes);
+            await dbContext.SaveChangesAsync();
+
+            return expiredPastes.Count;
+        }
+        catch (DbException e)
+        {
+            logger.LogDebug(e, "Error deleting expired pastes");
+            throw new IOException("Error deleting expired pastes. See debug logs for details.");
+        }
+    }
 }

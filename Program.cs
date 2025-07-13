@@ -65,6 +65,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<PasteService>();
+builder.Services.AddHostedService<PasteCleanupService>();
 
 var app = builder.Build();
 
