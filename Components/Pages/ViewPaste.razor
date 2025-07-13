@@ -108,10 +108,11 @@ else
                 await _javascript.DisposeAsync();
             }
         }
-        catch (JSDisconnectedException)
+        catch (JSDisconnectedException e)
         {
-            // Sources suggest to suppress this exception because it happens in normal operation?
+            // Sources suggest suppressing this exception because it happens in normal operation?
             // https://github.com/dotnet/aspnetcore/issues/49376
+            Logger.LogDebug(e, "JSDisconnectedException triggered. Circuit disconnected?");
         }
     }
 }
