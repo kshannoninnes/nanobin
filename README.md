@@ -44,7 +44,7 @@ The application will be available at `http://localhost:5148`.
 
 2. **Run the Docker container:**
    ```bash
-   docker run -v /database/path/on/host:/data -p 8080:8080 nanobin
+   docker run -v /config/path/on/host:/data -p 8080:8080 nanobin
    ```
 
    The application will be available at `http://localhost:8080`.
