@@ -8,9 +8,9 @@ A hyper-minimalistic pastebin alternative built with .NET and Blazor.
 - Automatic end-to-end encryption
 - Syntax highlighting for code snippets.
 - Uses SQLite for efficient, file-based storage.
+- Automatic expiration, pastes expire after 7 days
 
 ### Planned
-- Automatic expiration, both with a default value and a dropdown to change this value
 - Language selection to change the syntax highlighting if it picks the wrong language automatically
 
 ## Getting Started
