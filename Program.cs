@@ -38,7 +38,7 @@ builder.Host.UseSerilog((context, _, configuration) =>
     {
         configuration.WriteTo.Console(
             theme: ConsoleTheme.None,
-            outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
         );
     }
     else
