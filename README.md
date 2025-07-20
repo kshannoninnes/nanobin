@@ -1,6 +1,6 @@
 # Nanobin
 
-A hyper-minimalistic pastebin alternative built with .NET and Blazor.
+A hyper-minimalistic pastebin alternative built with .NET and Blazor. View a demo at https://nanobin.orthrus.dev
 
 ## Features
 
