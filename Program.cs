@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Nanobin.Components;
@@ -7,6 +8,12 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
+var logMap = new Dictionary<string, LogEventLevel>()
+{
+    { "Debug", LogEventLevel.Debug },
+    { "Warning", LogEventLevel.Warning },
+};
+
 var builder = WebApplication.CreateBuilder(args);
 
 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -14,6 +21,8 @@ var configPath = builder.Configuration["ConfigPath"] ?? Path.Combine(appDir, "na
 var dbPath = Path.Combine(configPath, "db", "nanobin.db");
 var keysPath = Path.Combine(configPath, "keys");
 var logPath = Path.Combine(configPath, "logs");
+
+var logConfig = builder.Configuration["LogLevel"] ?? "Warning";
 
 builder.Services.AddDbContext<NanobinDbContext>(options =>
 {
@@ -27,32 +36,26 @@ builder.Host.UseSerilog((context, _, configuration) =>
 {
     configuration
         .MinimumLevel.Information()
-        .MinimumLevel.Override("Host", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("System", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+        .MinimumLevel.Override("Host", logMap[logConfig])
+        .MinimumLevel.Override("Microsoft", logMap[logConfig])
+        .MinimumLevel.Override("System", logMap[logConfig])
+        .MinimumLevel.Override("Microsoft.AspNetCore", logMap[logConfig])
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", logMap[logConfig])
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database", LogEventLevel.Error)
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Query", LogEventLevel.Error)
         .Enrich.FromLogContext();
-
-    if (context.HostingEnvironment.IsDevelopment())
-    {
-        configuration.WriteTo.Console(
-            theme: ConsoleTheme.None,
-            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
-        );
-    }
-    else
-    {
-        configuration.WriteTo.Console(
-            theme: ConsoleTheme.None
-        );
-    }
+    
+    
+    configuration.WriteTo.Console(
+        theme: ConsoleTheme.None,
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3} {SourceContext}] {Message:lj}{NewLine}{Exception}"
+    );
 
     // Configure file sink with the correct path
     configuration.WriteTo.File(
         path: Path.Combine(logPath, "nanobin_.log"),
         rollingInterval: RollingInterval.Day,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3} {SourceContext}] {Message:lj}{NewLine}{Exception}",
         fileSizeLimitBytes: 10485760,
         retainedFileCountLimit: 7,
         shared: true,
