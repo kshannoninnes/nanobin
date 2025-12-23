@@ -1,0 +1,31 @@
+# JetBrains Rider & ReSharper specific
+.idea/
+*.sln.iml
+*.suo
+resharper-host/
+*.sln.DotSettings.user
+/_ReSharper.Caches/
+
+# Visual Studio specific
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Deprecated content
+/packages/
+*.nupkg
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker
+compose.yaml
