@@ -1,10 +1,12 @@
 import type { PropsWithChildren } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Layout.module.css";
 
 export default function Layout({ children }: PropsWithChildren) {
+    const navigate = useNavigate();
+
     function handleNavigateHome() {
-        // For now: same behavior as navigating to "/"
-        window.location.href = "/";
+        navigate("/");
     }
 
     return (

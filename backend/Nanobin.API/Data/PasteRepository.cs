@@ -8,15 +8,25 @@ public class PasteRepository
 
     public PasteRepository(IConfiguration configuration)
     {
-        var databasePath = configuration["Nanobin:SqlitePath"] ?? "nanobin.db";
-        var fullPath = Path.GetFullPath(databasePath);
+        var configuredPath = configuration["Nanobin:SqlitePath"] ?? "nanobin.db";
+        
+        var baseDirectory = AppContext.BaseDirectory;
+        var fullPath = Path.IsPathRooted(configuredPath)
+            ? configuredPath
+            : Path.GetFullPath(Path.Combine(baseDirectory, configuredPath));
 
+        // Create the directory for the database, if it doesn't already exist
+        var directoryPath = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+            Directory.CreateDirectory(directoryPath);
+    
         _sqliteConnectionString = new SqliteConnectionStringBuilder
         {
             DataSource = fullPath,
             ForeignKeys = true
         }.ToString();
     }
+
 
     public async Task InitialiseAsync()
     {
