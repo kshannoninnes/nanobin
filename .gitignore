@@ -16,8 +16,7 @@ resharper-host/
 [Bb]in/
 [Oo]bj/
 
-# Deprecated content
-/packages/
+# Deprecated content/packages/
 *.nupkg
 
 # Log files
@@ -27,5 +26,5 @@ resharper-host/
 .DS_Store
 Thumbs.db
 
-# Docker
-compose.yaml
+# SQlite Database
+**/*.db
