@@ -7,7 +7,7 @@ A minimalist, privacy-focused pastebin application with client-side encryption. 
 - **Client-side encryption** - Content is encrypted in the browser before being sent to the server
 - **Fast and lightweight** - Minimal dependencies and optimized performance
 - **1-Click Docker Compose Deploy** - Easy deployment with Docker and Docker Compose
-- **SQLite database** - Simple, file-based storage. No complicated dbms setup required.
+- **SQLite database** - File-based storage. No complicated DBMS setup required.
 - **Clean UI** - Simple minimalistic design
 - **Secure** - Not affected by recent react vulnerabilities, due to not using react-server-dom packages. All react usage is client-side only.
 
