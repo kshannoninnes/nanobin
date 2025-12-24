@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0 1rem;
+}
+
+.siteHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 1.25rem;
+    margin: 0;
+    color: #b0b0b0;
+    cursor: pointer;
+}
+
+.mainContent {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    color: #444444;
+}
