@@ -9,14 +9,14 @@ A minimalist, privacy-focused pastebin application with client-side encryption. 
 - **1-Click Docker Compose Deploy** - Easy deployment with Docker and Docker Compose
 - **SQLite database** - File-based storage. No complicated DBMS setup required.
 - **Clean UI** - Simple minimalistic design
-- **Secure** - Not affected by recent react vulnerabilities, due to not using react-server-dom packages. All react usage is client-side only.
+- **Secure by design** – Uses client-side–only React (no React Server Components), so server-side React vulnerabilities do not apply.
 
 ## Tech Stack
 
 ### Backend
-- **.NET 9.0** - Modern ASP.NET Core Web API
-- **SQLite** - Lightweight, embedded database
-- **Swagger/OpenAPI** - API testing in dev
+- **.NET 9** – ASP.NET Core Web API
+- **SQLite** – Lightweight, embedded database
+- **Swagger / OpenAPI** – API documentation in development
 
 ### Frontend
 - **React 19.2** - Modern UI library
@@ -76,5 +76,5 @@ The frontend dev server will be available at http://localhost:5173
 ## Security
 
 - All paste content is encrypted client-side using AES-GCM before being sent to the server
-- Each paste has a unique encryption key included in the URL fragment (after the '#' symbol in the URL) which is restricted to the client only
+- Each paste has a unique encryption key stored in the URL fragment (after the `#`), which is never sent to the server
 - The server only stores encrypted blobs and has no way to decrypt it
