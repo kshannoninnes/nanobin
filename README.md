@@ -1,6 +1,8 @@
 # Nanobin
 
-A minimalist, privacy-focused pastebin application with client-side encryption. Built with a modern tech stack featuring a .NET backend and React frontend. Try the demo at https://nanobin.orthrus.dev
+A minimalist, privacy-focused pastebin application with client-side encryption. Built with a modern tech stack featuring a .NET backend and React frontend. Re-written from [Nanobin-Legacy](https://github.com/kshannoninnes/nanobin-legacy/)
+
+Try the demo at https://nanobin.orthrus.dev
 
 ## Features
 
