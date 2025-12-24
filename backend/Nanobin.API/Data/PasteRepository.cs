@@ -9,9 +9,11 @@ public class PasteRepository
     public PasteRepository(IConfiguration configuration)
     {
         var databasePath = configuration["Nanobin:SqlitePath"] ?? "nanobin.db";
+        var fullPath = Path.GetFullPath(databasePath);
+
         _sqliteConnectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = databasePath,
+            DataSource = fullPath,
             ForeignKeys = true
         }.ToString();
     }
@@ -24,12 +26,11 @@ public class PasteRepository
         var command = connection.CreateCommand();
         command.CommandText =
             """
+            DROP TABLE IF EXISTS pastes;
             CREATE TABLE IF NOT EXISTS pastes (
               id TEXT PRIMARY KEY,
               ciphertext BLOB NOT NULL,
               iv BLOB NOT NULL,
-              salt BLOB NOT NULL,
-              content_type TEXT NOT NULL,
               created_at_utc TEXT NOT NULL,
               expires_at_utc TEXT NOT NULL
             );
@@ -48,15 +49,13 @@ public class PasteRepository
         var command = connection.CreateCommand();
         command.CommandText =
             """
-            INSERT INTO pastes(id, ciphertext, iv, salt, content_type, created_at_utc, expires_at_utc)
-            VALUES($id, $ciphertext, $iv, $salt, $contentType, $createdAtUtc, $expiresAtUtc);
+            INSERT INTO pastes(id, ciphertext, iv, created_at_utc, expires_at_utc)
+            VALUES($id, $ciphertext, $iv, $createdAtUtc, $expiresAtUtc);
             """;
 
         command.Parameters.AddWithValue("$id", record.Id);
         command.Parameters.Add("$ciphertext", SqliteType.Blob).Value = record.Ciphertext;
         command.Parameters.Add("$iv", SqliteType.Blob).Value = record.Iv;
-        command.Parameters.Add("$salt", SqliteType.Blob).Value = record.Salt;
-        command.Parameters.AddWithValue("$contentType", record.ContentType);
         command.Parameters.AddWithValue("$createdAtUtc", record.CreatedAtUtc.ToString("O"));
         command.Parameters.AddWithValue("$expiresAtUtc", record.ExpiresAtUtc.ToString("O"));
 
@@ -71,7 +70,7 @@ public class PasteRepository
         var command = connection.CreateCommand();
         command.CommandText =
             """
-            SELECT id, ciphertext, iv, salt, content_type, created_at_utc, expires_at_utc
+            SELECT id, ciphertext, iv, created_at_utc, expires_at_utc
             FROM pastes
             WHERE id = $id
             LIMIT 1;
@@ -82,15 +81,13 @@ public class PasteRepository
         if (!await reader.ReadAsync())
             return null;
 
-        var createdAtUtc = DateTimeOffset.Parse(reader.GetString(5));
-        var expiresAtUtc = DateTimeOffset.Parse(reader.GetString(6));
+        var createdAtUtc = DateTimeOffset.Parse(reader.GetString(3));
+        var expiresAtUtc = DateTimeOffset.Parse(reader.GetString(4));
 
         return new Paste(
             Id: reader.GetString(0),
             Ciphertext: (byte[])reader["ciphertext"],
             Iv: (byte[])reader["iv"],
-            Salt: (byte[])reader["salt"],
-            ContentType: reader.GetString(4),
             CreatedAtUtc: createdAtUtc,
             ExpiresAtUtc: expiresAtUtc
         );

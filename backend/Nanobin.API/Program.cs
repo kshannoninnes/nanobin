@@ -1,21 +1,17 @@
 using Nanobin.API.Data;
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-    Args = args,
-    WebRootPath = "client-dist"
-});
+var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<PasteRepository>();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<DatabaseInitService>();
 
 var app = builder.Build();
-
-await app.Services.GetRequiredService<PasteRepository>().InitialiseAsync();
 
 if (app.Environment.IsDevelopment())
 {
@@ -23,9 +19,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseBlazorFrameworkFiles();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();

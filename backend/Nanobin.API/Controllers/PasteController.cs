@@ -10,15 +10,11 @@ public sealed class PasteController(PasteRepository repo, IConfiguration config)
     [HttpPost]
     public async Task<IActionResult> Create(CreatePasteRequest req)
     {
-        if (string.IsNullOrWhiteSpace(req.ContentType))
-            return BadRequest("contentType required");
-
-        byte[] ciphertext, iv, salt;
+        byte[] ciphertext, iv;
         try
         {
             ciphertext = Convert.FromBase64String(req.CiphertextBase64);
             iv = Convert.FromBase64String(req.IvBase64);
-            salt = Convert.FromBase64String(req.SaltBase64);
         }
         catch
         {
@@ -33,8 +29,6 @@ public sealed class PasteController(PasteRepository repo, IConfiguration config)
             id,
             ciphertext,
             iv,
-            salt,
-            req.ContentType,
             now,
             expires
         ));
@@ -57,17 +51,13 @@ public sealed class PasteController(PasteRepository repo, IConfiguration config)
 
         return Ok(new
         {
-            paste.ContentType,
             CiphertextBase64 = Convert.ToBase64String(paste.Ciphertext),
-            IvBase64 = Convert.ToBase64String(paste.Iv),
-            SaltBase64 = Convert.ToBase64String(paste.Salt)
+            IvBase64 = Convert.ToBase64String(paste.Iv)
         });
     }
 }
 
 public record CreatePasteRequest(
-    string ContentType,
     string CiphertextBase64,
-    string IvBase64,
-    string SaltBase64
+    string IvBase64
 );
