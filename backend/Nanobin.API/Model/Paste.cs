@@ -1,4 +1,4 @@
-namespace Nanobin.API.Data;
+namespace Nanobin.API.Model;
 
 public record Paste(
     string Id,

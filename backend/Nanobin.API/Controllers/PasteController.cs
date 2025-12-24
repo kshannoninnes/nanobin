@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Nanobin.API.Data;
+using Nanobin.API.Model;
+using Nanobin.API.Services;
 
 namespace Nanobin.Api.Controllers;
 
 [ApiController]
 [Route("api/pastes")]
-public sealed class PasteController(PasteRepository repo, IConfiguration config) : ControllerBase
+public sealed class PasteController(SQLiteService repo, IConfiguration config) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreatePasteRequest req)

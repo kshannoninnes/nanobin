@@ -1,4 +1,4 @@
-using Nanobin.API.Data;
+using Nanobin.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +7,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<PasteRepository>();
+builder.Services.AddSingleton<SQLiteService>();
 
 builder.Services.AddHostedService<DatabaseInitService>();
 

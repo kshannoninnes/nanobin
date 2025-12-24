@@ -1,12 +1,13 @@
 using Microsoft.Data.Sqlite;
+using Nanobin.API.Model;
 
-namespace Nanobin.API.Data;
+namespace Nanobin.API.Services;
 
-public class PasteRepository
+public class SQLiteService
 {
     private readonly string _sqliteConnectionString;
 
-    public PasteRepository(IConfiguration configuration)
+    public SQLiteService(IConfiguration configuration)
     {
         var configuredPath = configuration["Nanobin:SqlitePath"] ?? "nanobin.db";
         

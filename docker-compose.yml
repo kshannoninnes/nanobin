@@ -1,0 +1,21 @@
+services:
+  nanobin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nanobin
+    ports:
+      - "36001:8080"
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+    volumes:
+      - nanobin_sqlite:/app/Database
+    restart: unless-stopped
+    logging: # Don't let nanobin stack up logs forever
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  nanobin_sqlite:

@@ -1,5 +1,5 @@
-namespace Nanobin.API.Data;
-public sealed class DatabaseInitService(PasteRepository repo) : IHostedService
+namespace Nanobin.API.Services;
+public sealed class DatabaseInitService(SQLiteService repo) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
         => repo.InitialiseAsync();
