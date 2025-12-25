@@ -1,60 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
-using Nanobin.API.Model;
 using Nanobin.API.Services;
 
 namespace Nanobin.Api.Controllers;
 
 [ApiController]
 [Route("api/pastes")]
-public sealed class PasteController(SQLiteService repo, IConfiguration config) : ControllerBase
+public sealed class PasteController(PasteService repo) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreatePasteRequest req)
     {
-        byte[] ciphertext, iv;
         try
         {
-            ciphertext = Convert.FromBase64String(req.CiphertextBase64);
-            iv = Convert.FromBase64String(req.IvBase64);
+            var (id, expires) = await repo.CreateAsync(req.CiphertextBase64, req.IvBase64);
+            return Created($"/api/pastes/{id}", new { id, expires });
         }
-        catch
+        catch (InvalidPasteException)
         {
-            return BadRequest("invalid base64");
+            return BadRequest("Error decoding paste contents. Did you visit the correct URL?");
         }
-
-        var now = DateTimeOffset.UtcNow;
-        var expires = now.AddDays(config.GetValue("Nanobin:DefaultTtlDays", 7));
-        var id = Guid.NewGuid().ToString("N")[..12];
-
-        await repo.InsertAsync(new Paste(
-            id,
-            ciphertext,
-            iv,
-            now,
-            expires
-        ));
-
-        return Created($"/api/pastes/{id}", new { id, expires });
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(string id)
     {
-        var paste = await repo.GetAsync(id);
-        if (paste is null)
-            return NotFound();
-
-        if (paste.ExpiresAtUtc <= DateTimeOffset.UtcNow)
+        try
         {
-            await repo.DeleteAsync(id);
+            var (ciphertextBase64, ivBase64) = await repo.GetAsync(id);
+            return Ok(new {ciphertextBase64, ivBase64});
+        }
+        catch (Exception ex) when (ex is PasteNotFoundException or PasteExpiredException)
+        {
             return NotFound();
         }
-
-        return Ok(new
-        {
-            CiphertextBase64 = Convert.ToBase64String(paste.Ciphertext),
-            IvBase64 = Convert.ToBase64String(paste.Iv)
-        });
     }
 }
 
