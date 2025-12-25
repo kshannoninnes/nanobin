@@ -12,40 +12,40 @@ export default function ViewPastePage() {
     const keyFragment = hash.startsWith("#") ? hash.slice(1) : "";
 
     const [plaintext, setPlaintext] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [failedPasteId, setFailedPasteId] = useState<string | null>(null);
 
     const codeRef = useRef<HTMLElement | null>(null);
 
-    const canLoad = pasteId && keyFragment;
-
+    // Retrieve decrypted text
     useEffect(() => {
-        if (!canLoad) return;
+        if (!pasteId || !keyFragment) return;
 
         const controller = new AbortController();
 
         getPaste(pasteId, keyFragment, controller.signal)
             .then(setPlaintext)
             .catch((err) => {
-                if (err?.name !== "AbortError") setErrorMessage("Unable to load paste.");
+                if (err?.name !== "AbortError") {
+                    setFailedPasteId(pasteId);
+                }
             });
 
         return () => controller.abort();
-    }, [canLoad, pasteId, keyFragment]);
+    }, [pasteId, keyFragment]);
 
-    // Highlight once plaintext is present
+    // Highlight once text is present
     useEffect(() => {
         const element = codeRef.current;
-        if (!plaintext || !element) return;
+        if (plaintext === null || !element) return;
 
         element.textContent = plaintext;
         hljs.highlightElement(element);
     }, [plaintext]);
 
-    const error = errorMessage ?? (!pasteId || !keyFragment ? "Unable to load content." : null);
-    if (error) {
+    if (!pasteId || !keyFragment || failedPasteId === pasteId) {
         return (
             <div className={styles.viewPaste}>
-                <div className={styles.error}>{error}</div>
+                <div className={styles.error}>Unable to load content.</div>
             </div>
         );
     }
@@ -55,9 +55,9 @@ export default function ViewPastePage() {
     return (
         <div className={styles.viewPaste}>
             <div className={styles.pasteContainer}>
-        <pre className={styles.pre}>
-            <code ref={codeRef} className={`${styles.decryptedContent} hljs`} />
-        </pre>
+                <pre className={styles.pre}>
+                    <code ref={codeRef} className={`${styles.decryptedContent} hljs`} />
+                </pre>
             </div>
         </div>
     );
