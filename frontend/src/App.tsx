@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import {Routes, Route, Navigate, useNavigate, useLocation} from "react-router-dom";
 import Layout from "./Layout";
 import CreatePastePage from "./CreatePastePage";
 import ViewPastePage from "./ViewPastePage";
@@ -11,7 +11,6 @@ function CreatePasteRoute() {
         <CreatePastePage
             onCreatePaste={async (plaintext) => {
                 const [pasteId, keyBase64Url] = await createPaste(plaintext);
-                // Simplify: Just navigate to the path + hash
                 navigate(`/${pasteId}#${keyBase64Url}`, { replace: true });
             }}
         />
