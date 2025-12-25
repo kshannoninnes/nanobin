@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import CreatePastePage from "./CreatePastePage";
 import ViewPastePage from "./ViewPastePage";
@@ -10,21 +10,22 @@ function CreatePasteRoute() {
     return (
         <CreatePastePage
             onCreatePaste={async (plaintext) => {
-                // shareUrl: `${origin}/${pasteId}#${key}`
-                const shareUrl = await createPaste(plaintext);
-                const parsedUrl = new URL(shareUrl);
-                navigate(parsedUrl.pathname + parsedUrl.hash, { replace: true });
+                const [pasteId, keyBase64Url] = await createPaste(plaintext);
+                // Simplify: Just navigate to the path + hash
+                navigate(`/${pasteId}#${keyBase64Url}`, { replace: true });
             }}
         />
     );
 }
 
 export default function App() {
+    const location = useLocation();
+
     return (
         <Layout>
             <Routes>
                 <Route path="/" element={<CreatePasteRoute />} />
-                <Route path="/:pasteId" element={<ViewPastePage />} />
+                <Route path="/:pasteId" element={<ViewPastePage key={location.pathname + location.hash} />}/>
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Layout>

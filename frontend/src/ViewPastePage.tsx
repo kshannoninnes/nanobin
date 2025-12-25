@@ -1,117 +1,55 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import styles from "./ViewPastePage.module.css";
 import { getPaste } from "./services/pasteService";
 
-type ViewPasteError =
-    | { code: "missingPasteId" }
-    | { code: "missingKey" }
-    | { code: "notFound" }
-    | { code: "decryptionFailed" }
-    | { code: "networkError" };
-
-type ViewState =
-    | { kind: "pending" }
-    | { kind: "success"; plaintext: string }
-    | { kind: "error"; error: ViewPasteError };
-
-type ErrorKind = ViewPasteError["code"];
-
-function readKeyFromHashOnce(): string | null {
-    const hashValue = window.location.hash;
-    if (!hashValue) return null;
-
-    const keyFragment = hashValue.startsWith("#") ? hashValue.slice(1) : hashValue;
-    return keyFragment.length > 0 ? keyFragment : null;
-}
-
-function normalizeErrorKind(error: unknown): Exclude<ErrorKind, "missingPasteId" | "missingKey"> {
-    const message = error instanceof Error ? error.message : "";
-
-    if (message.toLowerCase().includes("decryption failed")) return "decryptionFailed";
-    if (message.includes("404") || message.toLowerCase().includes("not found")) return "notFound";
-    return "networkError";
-}
-
-function errorMessage(error: ViewPasteError): string {
-    switch (error.code) {
-        case "missingPasteId":
-            return "Invalid paste URL.";
-
-        case "missingKey":
-            return (
-                "Missing decryption key in URL fragment. " +
-                "The key must appear after '#' and is never sent to the server."
-            );
-
-        case "notFound":
-            return "Paste not found (or expired).";
-
-        case "decryptionFailed":
-            return "Decryption failed (bad key or corrupted paste).";
-
-        case "networkError":
-            return "Error retrieving paste.";
-    }
-}
-
 export default function ViewPastePage() {
     const { pasteId } = useParams<{ pasteId: string }>();
-    const keyFragment = useMemo(() => readKeyFromHashOnce(), []);
 
-    const [viewState, setViewState] = useState<ViewState>(() => {
-        if (!pasteId) return { kind: "error", error: { code: "missingPasteId" } };
-        if (!keyFragment) return { kind: "error", error: { code: "missingKey" } };
-        return { kind: "pending" };
-    });
+    const { hash } = useLocation();
+    const keyFragment = hash.startsWith("#") ? hash.slice(1) : "";
 
+    const [plaintext, setPlaintext] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const canLoad = pasteId && keyFragment;
+
+    // Get the current paste on page load
     useEffect(() => {
-        let cancelled = false;
+        if (!canLoad) return;
 
-        async function loadAndDecrypt() {
-            if (!pasteId) return;
-            if (!keyFragment) return;
+        const controller = new AbortController();
 
-            try {
-                const plaintext = await getPaste(pasteId, keyFragment);
-                if (cancelled) return;
+        getPaste(pasteId, keyFragment, controller.signal)
+            .then(setPlaintext)
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    setErrorMessage("Unable to load paste.");
+                }
+            });
 
-                setViewState({ kind: "success", plaintext });
-            } catch (error: unknown) {
-                if (cancelled) return;
+        return () => controller.abort();
+    }, [canLoad, pasteId, keyFragment]);
 
-                setViewState({ kind: "error", error: { code: normalizeErrorKind(error) } });
-            }
-        }
+    // Don't render anything if we don't have any content yet (eg. just started loading the page)
+    if (plaintext === null) return null;
 
-        // Only attempt fetch/decrypt if we are not in a pre-validation error state
-        if (pasteId && keyFragment) {
-            loadAndDecrypt();
-        }
-
-        return () => {
-            cancelled = true;
-        };
-    }, [pasteId, keyFragment]);
-
-    // Still loading, nothing to show yet
-    if (viewState.kind === "pending") return null;
-
-    // Error occurred, show the error message
-    if (viewState.kind === "error") {
+    // Display an error message if any errors during page load/paste retrieval
+    const error = errorMessage ?? (!pasteId || !keyFragment ? "Unable to load content." : null);
+    if (error) {
         return (
             <div className={styles.viewPaste}>
-                <div className={styles.error}>{errorMessage(viewState.error)}</div>
+                <div className={styles.error}>{error}</div>
             </div>
         );
     }
 
-    // Success, show decrypted content
+    // Display regular content if everything goes well
     return (
         <div className={styles.viewPaste}>
             <div className={styles.pasteContainer}>
                 <pre className={styles.pre}>
-                  <code className={styles.decryptedContent}>{viewState.plaintext}</code>
+                    <code className={styles.decryptedContent}>{plaintext}</code>
                 </pre>
             </div>
         </div>
