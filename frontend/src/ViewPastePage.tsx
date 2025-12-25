@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import styles from "./ViewPastePage.module.css";
 import { getPaste } from "./services/pasteService";
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css";
 
 export default function ViewPastePage() {
     const { pasteId } = useParams<{ pasteId: string }>();
@@ -12,9 +14,10 @@ export default function ViewPastePage() {
     const [plaintext, setPlaintext] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const codeRef = useRef<HTMLElement | null>(null);
+
     const canLoad = pasteId && keyFragment;
 
-    // Get the current paste on page load
     useEffect(() => {
         if (!canLoad) return;
 
@@ -22,19 +25,22 @@ export default function ViewPastePage() {
 
         getPaste(pasteId, keyFragment, controller.signal)
             .then(setPlaintext)
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    setErrorMessage("Unable to load paste.");
-                }
+            .catch((err) => {
+                if (err?.name !== "AbortError") setErrorMessage("Unable to load paste.");
             });
 
         return () => controller.abort();
     }, [canLoad, pasteId, keyFragment]);
 
-    // Don't render anything if we don't have any content yet (eg. just started loading the page)
-    if (plaintext === null) return null;
+    // Highlight once plaintext is present
+    useEffect(() => {
+        const element = codeRef.current;
+        if (!plaintext || !element) return;
 
-    // Display an error message if any errors during page load/paste retrieval
+        element.textContent = plaintext;
+        hljs.highlightElement(element);
+    }, [plaintext]);
+
     const error = errorMessage ?? (!pasteId || !keyFragment ? "Unable to load content." : null);
     if (error) {
         return (
@@ -44,13 +50,14 @@ export default function ViewPastePage() {
         );
     }
 
-    // Display regular content if everything goes well
+    if (plaintext === null) return null;
+
     return (
         <div className={styles.viewPaste}>
             <div className={styles.pasteContainer}>
-                <pre className={styles.pre}>
-                    <code className={styles.decryptedContent}>{plaintext}</code>
-                </pre>
+        <pre className={styles.pre}>
+            <code ref={codeRef} className={`${styles.decryptedContent} hljs`} />
+        </pre>
             </div>
         </div>
     );
