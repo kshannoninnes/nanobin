@@ -1,8 +1,8 @@
-# Nanobin
+# nanobin
 
 A minimalist, privacy-focused pastebin application with client-side encryption. Built with a modern tech stack featuring a .NET backend and React frontend. Re-written from [Nanobin-Legacy](https://github.com/kshannoninnes/nanobin-legacy/)
 
-Try the demo at https://nanobin.orthrus.dev
+Try it out at https://nanobin.orthrus.dev
 
 ## Features
 
@@ -27,6 +27,7 @@ Try the demo at https://nanobin.orthrus.dev
 - **React Router** - Client-side routing
 - **Zod** - Runtime type validation
 - **Web Crypto API** - Client-side encryption
+- **Highlight.JS** - Automatic syntax highlighting
 
 ## Getting Started
 
