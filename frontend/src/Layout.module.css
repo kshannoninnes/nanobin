@@ -41,6 +41,7 @@
 
 .subtitle {
     font-size: 0.8rem;
+    margin-bottom: 0.2rem;
     color: #666;
 }
 
@@ -54,4 +55,9 @@
     display: flex;
     flex-direction: column;
     overflow: auto;
+    position: relative;
+}
+
+.tools {
+    margin-bottom: 0.2rem;
 }

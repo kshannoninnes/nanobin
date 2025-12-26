@@ -1,6 +1,7 @@
 import { Base64 } from "js-base64";
-import { encrypt, decrypt } from "./pasteCrypto.ts";
-import { CreatePasteResponseSchema, GetPasteResponseSchema } from "./pasteAPISchema.ts";
+import { encrypt, decrypt } from "../encryption/pasteCrypto.ts";
+import { CreatePasteResponseSchema, GetPasteResponseSchema } from "./pasteSchema.ts";
+import type { CreatePasteResponse, GetPasteResponse } from "./pasteSchema.ts";
 
 export async function createPaste(plaintext: string): Promise<[string, string]> {
     // Validate input
@@ -36,7 +37,8 @@ export async function createPaste(plaintext: string): Promise<[string, string]> 
     }
 
     // Parse JSON
-    let json, validated;
+    let json: unknown;
+    let validated: CreatePasteResponse;
     try {
         json = await response.json();
         validated = CreatePasteResponseSchema.parse(json);
@@ -81,7 +83,8 @@ export async function getPaste(pasteId: string, decryptionKey: string, signal: A
     }
 
     // Parse JSON
-    let json, validated;
+    let json: unknown;
+    let validated: GetPasteResponse;
     try {
         json = await response.json();
         validated = GetPasteResponseSchema.parse(json);

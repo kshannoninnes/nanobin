@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import styles from "./ViewPastePage.module.css";
-import { getPaste } from "./services/pasteService";
+import { getPaste } from "../api/pasteService.ts";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 
-export default function ViewPastePage() {
+type CopyAction = (() => Promise<void>) | null;
+
+export default function ViewPastePage({ setHeaderCopyAction }: {setHeaderCopyAction: (action: CopyAction) => void}) {
     const { pasteId } = useParams<{ pasteId: string }>();
 
     const { hash } = useLocation();
@@ -15,6 +17,25 @@ export default function ViewPastePage() {
     const [failedPasteId, setFailedPasteId] = useState<string | null>(null);
 
     const codeRef = useRef<HTMLElement | null>(null);
+
+    // Create a copy function reference
+    const copyToClipboard = useCallback(async () => {
+        if (plaintext) {
+            await navigator.clipboard.writeText(plaintext);
+        }
+    }, [plaintext]);
+
+    // Register/Unregister the copy action with App.tsx
+    useEffect(() => {
+        if (plaintext === null) {
+            setHeaderCopyAction(null);
+        } else {
+            setHeaderCopyAction(copyToClipboard);
+        }
+
+        return () => setHeaderCopyAction(null);
+    }, [plaintext, copyToClipboard, setHeaderCopyAction]);
+
 
     // Retrieve decrypted text
     useEffect(() => {
