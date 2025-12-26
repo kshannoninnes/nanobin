@@ -6,14 +6,11 @@ Try it out at https://nanobin.orthrus.dev
 
 ## Screenshots
 <p>
-  <a href="https://github.com/user-attachments/assets/9d3d7070-47eb-4165-a3c9-647b2bec8338">
-    <img src="https://github.com/user-attachments/assets/9d3d7070-47eb-4165-a3c9-647b2bec8338" width="320" />
-  </a>
   <a href="https://github.com/user-attachments/assets/e5351f80-cc27-47db-986c-62724624b9e4">
-    <img src="https://github.com/user-attachments/assets/e5351f80-cc27-47db-986c-62724624b9e4" width="320" />
+    <img src="https://github.com/user-attachments/assets/e5351f80-cc27-47db-986c-62724624b9e4" width="400" />
   </a>
   <a href="https://github.com/user-attachments/assets/0914d8fa-665d-4ce1-a709-011f1a6f1604">
-    <img src="https://github.com/user-attachments/assets/0914d8fa-665d-4ce1-a709-011f1a6f1604" width="320" />
+    <img src="https://github.com/user-attachments/assets/0914d8fa-665d-4ce1-a709-011f1a6f1604" width="400" />
   </a>
 </p>
 
