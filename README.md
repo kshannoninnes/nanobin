@@ -79,5 +79,5 @@ The frontend dev server will be available at http://localhost:5173
 ## Security
 
 - All paste content is encrypted client-side using AES-GCM before being sent to the server
-- Each paste has a unique encryption key stored in the URL fragment (after the `#`), which is never sent to the server
+- Each paste stores an encryption key in the URL fragment (after the `#`), which is never sent to the server
 - The server only stores encrypted blobs and has no way to decrypt it
