@@ -1,4 +1,4 @@
-import styles from "./TextButton.module.css";
+import styles from "./CopyButton.module.css";
 
 type TextButtonProps = {
     enabled: boolean;
